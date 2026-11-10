@@ -370,9 +370,9 @@ function stato(){const e=$('#dt');if(!e)return;let t='Salvato nell’app',c='dot
 
 let authDone=false,got=false,refTm=0;
 async function aggiorna(man){if(!cu||!window.CLOUD)return;if(!man&&Date.now()-refTm<4000)return;refTm=Date.now();
-  try{CLOUD.online();const v=(await CLOUD.get()).val();got=true;
+  try{CLOUD.online();const v=await leggiV((await CLOUD.getMeta()).val());got=true;
    if(man&&v&&(v.rev===myRev||v.rev===base)&&!unsync){cst='ok';stato();return avviso('Sei già aggiornato.')}
-   onCloud(v);stato()}catch(e){cst='err';stato();if(man)avviso('Non riesco a contattare il cloud. Controlla la connessione.')}}
+   await gest(v);stato()}catch(e){cst='err';stato();if(man)avviso('Non riesco a contattare il cloud. Controlla la connessione.')}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)aggiorna()});
 addEventListener('online',()=>aggiorna());addEventListener('pageshow',()=>aggiorna());
 
@@ -622,8 +622,21 @@ window.cloudAuth=u=>{authDone=true;cu=u;if(!u){login();stato();return}
  $('#sh').hidden=true;
  if(!watching){watching=true;CLOUD.watch(onCloud,()=>{cst='err';stato()})}
  stato()};
-function onCloud(v){got=true;
- if(!v||!v.d){if(Z)pushNow();return}
+// ---- Sincronizzazione a pezzi: ogni file dentro l'.xlsm (fogli, stili, macro...) sta separato su Firebase.
+// Percorsi: stampatell/xlsm/m = indice (rev, by, h=impronte, o=ordine); stampatell/xlsm/f/<chiave> = contenuto del file.
+// Il vecchio formato (un'unica stringa base64 in stampatell/xlsm/d) viene ancora letto e poi convertito al primo salvataggio.
+const ek=p=>encodeURIComponent(p).replace(/\./g,'%2E'),dk=k=>decodeURIComponent(k);
+function hh(u){let a=0x811c9dc5,b=5381;for(let i=0;i<u.length;i++){const c=u[i];a^=c;a=Math.imul(a,16777619);b=(Math.imul(b,33)+c)|0}
+ return (a>>>0).toString(36)+(b>>>0).toString(36)+u.length.toString(36)}
+async function impronte(){const r={},l=[];Z.forEach((p,f)=>{if(!f.dir)l.push([p,f])});
+ for(const [p,f] of l){const u=await f.async('uint8array');r[ek(p)]={p,u,h:hh(u)}}return r}
+async function pack(u){const z=new JSZip();z.file('x',u,{binary:true,createFolders:false});return z.generateAsync({type:'base64',compression:'DEFLATE'})}
+async function unpack(b){const z=await JSZip.loadAsync(b,{base64:true});return z.file('x').async('uint8array')}
+async function leggiV(m){if(m&&m.h)return m;
+ const o=(await CLOUD.getRaw()).val();return o&&o.d?{rev:o.rev,legacy:o.d,by:o.by}:null}
+function onCloud(m){leggiV(m).then(gest).catch(()=>{cst='err';stato()})}
+function gest(v){got=true;
+ if(!v){if(Z)pushNow();return}
  if(v.rev===myRev)return;
  if(v.rev===base){if(unsync)pushNow();return}
  pend=v;applyPend()}
@@ -632,17 +645,34 @@ function applyPend(){if(!pend)return;clearTimeout(ptm);
  const v=pend;
  if(unsync&&Z)return scelta('Modifiche in conflitto','Il socio ha cambiato i dati mentre tu avevi modifiche non ancora sincronizzate. Quali tieni?','Tieni le mie',()=>{pend=null;return pushNow()},'Prendi quelle del socio',()=>prendi(v));
  return prendi(v)}
-async function prendi(v){pend=null;try{await load(v.d,{base64:true});myRev=v.rev;base=v.rev;ls('tsc_rev',myRev);ls('tsc_base',base);ls('tsc_x',v.d);unsync=false;ls('tsc_u',null);dirty=false;cst='ok';ric()}catch(e){cst='err';stato()}}
+async function prendi(v){pend=null;try{
+ let b64;
+ if(v.legacy)b64=v.legacy;
+ else{
+  if(Z)mettiFogli();
+  const loc=Z?await impronte():{};
+  const need=Object.keys(v.h).filter(k=>!loc[k]||loc[k].h!==v.h[k]);
+  const nuovi={};
+  await Promise.all(need.map(async k=>{const x=(await CLOUD.getFile(k)).val();if(!x)throw new Error('File mancante nel cloud');nuovi[k]=await unpack(x)}));
+  const z=new JSZip();
+  for(const k of (v.o||Object.keys(v.h)))z.file(dk(k),nuovi[k]||loc[k].u,{binary:true,createFolders:false});
+  b64=await z.generateAsync({type:'base64',compression:'DEFLATE'})}
+ await load(b64,{base64:true});myRev=v.rev;base=v.rev;ls('tsc_rev',myRev);ls('tsc_base',base);ls('tsc_x',b64);unsync=false;ls('tsc_u',null);dirty=false;cst='ok';ric()}catch(e){cst='err';stato()}}
 function pushSoon(){clearTimeout(ptm2);ptm2=setTimeout(pushNow,1200)}
 async function pushNow(){if(!cu||!Z||!window.CLOUD)return;clearTimeout(ptm2);mettiFogli();cst='sync';stato();
- try{const d=await Z.generateAsync({type:'base64',compression:'DEFLATE'}),rev=Date.now();myRev=rev;ls('tsc_rev',rev);
-  await CLOUD.push({d,rev,by:cu.email||''});base=rev;ls('tsc_base',rev);
+ try{const loc=await impronte(),m0=(await CLOUD.getMeta()).val(),vecchie=(m0&&m0.h)||{},rev=Date.now();
+  const up={},h={},o=Object.keys(loc);
+  for(const k of o){h[k]=loc[k].h;if(vecchie[k]!==h[k])up['f/'+k]=await pack(loc[k].u)}
+  for(const k in vecchie)if(!(k in h))up['f/'+k]=null;
+  up.m={rev,by:cu.email||'',h,o};up.d=null;up.rev=null;up.by=null;
+  myRev=rev;ls('tsc_rev',rev);
+  await CLOUD.update(up);base=rev;ls('tsc_base',rev);
   if(myRev===rev){unsync=false;ls('tsc_u',null);cst='ok'}}catch(e){cst='err'}
  stato()}
 async function cloudDopoApri(){unsync=false;ls('tsc_u',null);
  if(!cu||!window.CLOUD)return;
- try{const v=(await CLOUD.get()).val();
-  if(v&&v.d)scelta('Dati già presenti nel cloud','Sul cloud ci sono già i dati condivisi. Vuoi sostituirli con questo file?','Sostituisci con questo file',()=>pushNow(),'Tieni quelli condivisi',()=>prendi(v));
+ try{const v=await leggiV((await CLOUD.getMeta()).val());
+  if(v)scelta('Dati già presenti nel cloud','Sul cloud ci sono già i dati condivisi. Vuoi sostituirli con questo file?','Sostituisci con questo file',()=>pushNow(),'Tieni quelli condivisi',()=>prendi(v));
   else await pushNow()}catch(e){cst='err';stato()}}
 if('serviceWorker' in navigator&&location.protocol.startsWith('http'))navigator.serviceWorker.register('sw.js').catch(()=>{});
 </script><script type="module">
@@ -650,8 +680,8 @@ const cfg={apiKey:"AIzaSyA1ov8UqFUK65gJ-BEm1F0Uhzqm3s_A_bk",authDomain:"stampate
 try{
  const B='https://www.gstatic.com/firebasejs/10.14.1/';
  const [A,Au,D]=await Promise.all([import(B+'firebase-app.js'),import(B+'firebase-auth.js'),import(B+'firebase-database.js')]);
- const app=A.initializeApp(cfg),auth=Au.getAuth(app),db=D.getDatabase(app),R=D.ref(db,'stampatell/xlsm');
- window.CLOUD={online:()=>{try{D.goOnline(db)}catch(e){}},login:(e,p)=>Au.signInWithEmailAndPassword(auth,e,p),logout:()=>Au.signOut(auth),push:o=>D.set(R,o),get:()=>D.get(R),watch:(cb,er)=>D.onValue(R,x=>cb(x.val()),er)};
+ const app=A.initializeApp(cfg),auth=Au.getAuth(app),db=D.getDatabase(app),R=D.ref(db,'stampatell/xlsm'),RM=D.ref(db,'stampatell/xlsm/m');
+ window.CLOUD={online:()=>{try{D.goOnline(db)}catch(e){}},login:(e,p)=>Au.signInWithEmailAndPassword(auth,e,p),logout:()=>Au.signOut(auth),update:o=>D.update(R,o),getRaw:()=>D.get(R),getMeta:()=>D.get(RM),getFile:k=>D.get(D.ref(db,'stampatell/xlsm/f/'+k)),watch:(cb,er)=>D.onValue(RM,x=>cb(x.val()),er)};
  Au.onAuthStateChanged(auth,u=>window.cloudAuth&&window.cloudAuth(u));
 }catch(e){window.CLOUDFAIL=true;console.warn('Cloud non disponibile',e);try{stato()}catch(x){}}
 </script>
