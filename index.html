@@ -41,7 +41,7 @@ h3{display:flex;justify-content:space-between;align-items:baseline;margin:24px 6
 .th button{background:#fff;border-radius:26px;padding:18px;min-height:132px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;font-weight:400}
 .th button.p{background:var(--o);color:#fff}.th svg.ic{width:26px;height:26px}.th b{display:block;font-size:19px}.th em{display:block;font-style:normal;font-size:14px;opacity:.85}
 .bar{position:fixed;left:0;right:0;bottom:0;max-width:640px;margin:0 auto;padding:14px 18px calc(16px + env(safe-area-inset-bottom,0px));display:flex;gap:10px;z-index:6;background:linear-gradient(#ececf000,var(--bg) 38%)}
-.bar[hidden]{display:none}.bar button{flex:1;min-height:56px}
+.bar[hidden]{display:none}.bar.b3{gap:8px}.bar.b3 button{padding:0 6px;font-size:13px;line-height:1.15;flex-direction:column;gap:3px}.bar button{flex:1;min-height:56px}
 .dc{display:block;text-align:center;padding:20px 18px}
 .dnb{width:auto;min-height:0;background:none;padding:0;margin:0 auto;display:block;border-radius:50%}
 .dn{display:grid;width:190px;height:190px;border-radius:50%;place-items:center}
@@ -253,7 +253,7 @@ const wk=n=>{const d=new Date(Math.round((n-25569)*864e5)),t=new Date(Date.UTC(d
 const accB=(id,t,body,v,n)=>{const o=!!ex[id]||(!!q&&(id==='sp'||id==='st'));return '<div class="pn"><button class="ph" aria-expanded="'+o+'" onclick="tgl(\''+id+'\')"><span>'+t+(n==null?'':' <small>('+n+')</small>')+'</span><b>'+(v?v+' ':'')+(o?'\u2304':'\u203A')+'</b></button>'+(o?'<div class="in">'+body+'</div>':'')+'</div>'};
 const acc=(id,t,L,fn,v)=>accB(id,t,L.map(fn).join(''),v,L.length);
 const TIT={pv:'Preventivi',st:'Storico',sp:'Spese',ca:'Cassa',en:'Energia',mat:'Materiali',bil:'Bilancio'};
-const BAR={home:[['mg','Nuova spesa','sp(0)'],['dk','Nuovo pezzo','pz(0,1)']],sp:[['mg','Nuova spesa','sp(0)']],st:[['mg','Nuovo lavoro','st(0)']],
+const BAR={home:[['mg','Nuova spesa','sp(0)'],['dk','Nuovo pezzo','pz(0,1)']],pv:[['mg','Aggiungi pezzo','pz(0,1)'],['dk','Aggiungi prototipazione','pz(0,2)'],['gr','Aggiungi spesa','ex2(0)']],sp:[['mg','Nuova spesa','sp(0)']],st:[['mg','Nuovo lavoro','st(0)']],
   ca:[['mg','Versamento','verScelta()'],['dk','Rimborso','rimb(0)']],en:[['mg','Bolletta','bo(0)'],['dk','Ore','oh(0)']],mat:[['mg','Filamento','fil(0)'],['dk','Stampante','stm(0)']]};
 
 function vHome(){const t=tot(),neg=t.p17<0,
@@ -303,7 +303,7 @@ function vEn(){const e=energia(),B=e.B.slice().sort((a,b)=>(b.d1||0)-(a.d1||0)||
   (O.length?acc('oh','Ore stampante',O,o=>'<div class="c it" onclick="oh('+o.r+')"><span><b>'+(o.d!=null?'Settimana '+wk(o.d):'Ore di stampa')+'</b><em>'+esc(o.s||'Stampante')+(o.d!=null?' · dal '+sd(o.d):'')+'</em></span><b>'+n3(o.h)+' h</b></div>'):'<p class="note">Nessuna ora ancora.</p>')}
 
 const PZ=y=>'<div class="c it" onclick="pz('+y.r+')"><span><b>Pezzo '+esc(y.n??'')+(y.p>1?' · '+y.p+' piatti':'')+'</b><em>'+esc(y.c)+' · '+esc(y.s)+' · '+hm(y.e)+' h · '+n3(y.f)+' g</em></span><b>'+eur(y.k)+'</b></div>';
-const pvAdd=(x,b,n)=>'<div class="pair"><button class="mg" onclick="pz(0,'+b+')">'+IC('pl')+(x.P.length?'Aggiungi pezzo':'Aggiungi il primo pezzo')+'</button>'+(x.P.length?'<button class="ghost" onclick="sv('+b+')">Svuota</button>':'')+'</div>'+(x.P.length?acc('pz'+b,b==2?'Pezzi di prototipazione':'Pezzi',x.P,PZ):'');
+const pvAdd=(x,b,n)=>(x.P.length?'<div class="pair"><button class="ghost" onclick="sv('+b+')">Svuota</button></div>':'')+(x.P.length?acc('pz'+b,b==2?'Pezzi di prototipazione':'Pezzi',x.P,PZ):'');
 
 function vPv(){const a=prev(...RB[1]),b=prev(...RB[2]),q2=nz(get('pv','Q2')),PR=produzione(),X3=PR.t1[1],X3b=PR.t2[1],P=stamps(),H=costiOrari(),
   R=(x,y)=>'<div class="r"><span>'+x+'</span><b>'+eur(y)+'</b></div>',
@@ -316,7 +316,7 @@ function vPv(){const a=prev(...RB[1]),b=prev(...RB[2]),q2=nz(get('pv','Q2')),PR=
   h3('Prototipazione',b.P.length?eur(b.k):'')+pvAdd(b,2,3)+(b.P.length?'<p class="note">Tempo '+hm(b.t)+' h · peso '+n3(b.w)+' g · corrente '+eur(b.i)+' · filamento '+eur(b.j)+'</p>':'')+
   h3('Costi di produzione')+'<div class="hb0 pr">'+R('Spesa + 15%',PR.J)+R('Spesa + 15% + ore',PR.K)+R('Spesa + 15% + ore + prototipazione',PR.L)+'</div>'+
   h3('Spedizione, post produzione, accessori',eur(PR.X))+'<div class="c">'+R('Spedizione',PR.D)+R('Post produzione',PR.Eo)+R('Accessori',PR.F)+'</div>'+
-  '<div class="pair"><button class="mg" onclick="ex2(0)">'+IC('pl')+'Aggiungi spesa</button>'+(PR.E.length?'<button class="ghost" onclick="svCp()">Svuota</button>':'')+'</div>'+ent+
+  (PR.E.length?'<div class="pair"><button class="ghost" onclick="svCp()">Svuota</button></div>':'')+ent+
   accB('cp','Prezzi per più copie','<div class="rt">'+T('Preventivi',PR.t1)+T('+ prototipazione',PR.t2)+'</div><p class="note">Con più copie le spese di produzione si contano una volta sola.</p>')+
   (P.length?acc('hs','Costo orario stampanti',P,s=>'<div class="c it"><span><b>'+esc(s.n.trim())+'</b><em>'+(s.w?n3(s.w)+' W':'')+'</em></span><b>'+eur(H[s.n]||0)+' / ora</b></div>'):'<p class="note">Nessuna stampante ancora.</p>')}
 
@@ -337,7 +337,7 @@ function ric(){const m=$('#m'),bar=$('#bar'),
   if(!Z){m.innerHTML=top+'<div class="big"><h2>Apri il tuo Excel</h2><p>Tocca “Apri Excel” e scegli il file XLSM. Lo fai una volta sola: poi l’app ricorda tutto e salva da sola ad ogni modifica.</p><button class="mg" onclick="scegli()">Apri Excel</button><button class="gr" onclick="dalModello()">Parti dal modello</button></div>';bar.innerHTML='';bar.hidden=true;return}
   const f=document.activeElement&&document.activeElement.id==='q',pos=f?document.activeElement.selectionStart:0;
   m.innerHTML=top+{home:vHome,pv:vPv,st:vSt,bil:vBil,sp:vSp,ca:vCa,en:vEn,mat:vMat}[tab]();
-  const B=BAR[tab];bar.innerHTML=B?B.map(x=>'<button class="'+x[0]+'" onclick="'+x[2]+'">'+IC('pl')+x[1]+'</button>').join(''):'';bar.hidden=!B;
+  const B=BAR[tab];bar.innerHTML=B?B.map(x=>'<button class="'+x[0]+'" onclick="'+x[2]+'">'+IC('pl')+x[1]+'</button>').join(''):'';bar.hidden=!B;bar.classList.toggle('b3',!!B&&B.length>2);
   stato();if(f){const i=$('#q');i.focus();i.setSelectionRange(pos,pos)}}
 
 function stato(){const e=$('#dt');if(!e)return;let t='Salvato nell’app',c='dot ok';
