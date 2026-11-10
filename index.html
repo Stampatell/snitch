@@ -63,8 +63,25 @@ label.chk{display:flex;gap:12px;align-items:center;font-size:17px;color:var(--in
 .pn{background:#fff;border-radius:22px;margin:8px 0;overflow:hidden}.pn>.ph{background:none;border-radius:0;justify-content:space-between;min-height:56px;padding:0 18px;font-weight:700;font-size:17px;text-align:left}.ph small{font-weight:400;color:var(--m);font-size:15px}.ph b{color:var(--m);font-weight:600}
 .pn .in{padding:0 12px 12px}.pn .in .c{background:var(--in);margin:6px 0}.pn .in>.r{padding:10px 6px}.lg{text-align:left;margin-top:12px}
 
+#sb{display:none}
+@media (min-width:900px) and (pointer:fine){
+body.hasSb{padding-left:208px}
+body.hasSb #sb{display:flex;position:fixed;left:0;top:0;bottom:0;width:208px;background:#fff;padding:28px 12px 16px;flex-direction:column;gap:2px;z-index:5;overflow:auto}
+#sb .logo{margin:0 0 22px 10px;height:14px;max-width:calc(100% - 20px)}
+#sb button{min-height:42px;border-radius:12px;justify-content:flex-start;padding:0 14px;background:none;font-weight:600;font-size:15px;color:var(--ink)}
+#sb button:hover{background:var(--in)}#sb button.on{background:var(--o);color:#fff}
+body.hasSb main{margin:0;max-width:1100px;padding:0 36px}
+body.hasSb main .logo,body.hasSb .bk{display:none}
+body.hasSb .top{padding-top:30px}
+body.hasSb .th{grid-template-columns:repeat(3,1fr)}body.hasSb .th button{min-height:124px}
+body.hasSb .bar{left:208px;right:0;max-width:1100px;margin:0;padding:16px 36px 22px;justify-content:flex-end}
+body.hasSb .bar button,body.hasSb .bar.b3 button{flex:none;width:auto;min-width:190px;flex-direction:row;font-size:16px;padding:0 24px;gap:8px;min-height:52px}
+.th button:hover,.pn>.ph:hover,.it:hover{filter:brightness(.97)}
+#sh{align-items:center}
+.box{max-width:560px;border-radius:28px;padding:26px 28px 28px}.box::before{display:none}
+}
 </style></head><body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="p" viewBox="0 0 24 24"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></symbol><symbol id="r" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></symbol><symbol id="w" viewBox="0 0 24 24"><path d="M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM4 7l11-3v3M16 14h2"/></symbol><symbol id="b" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol><symbol id="h" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6M4 4v4h4M12 8v4l3 2"/></symbol><symbol id="s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></symbol><symbol id="k" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol><symbol id="pl" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol></svg><main id="m"></main>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="p" viewBox="0 0 24 24"><path d="M7 9V4h10v5M7 17H5a1 1 0 0 1-1-1v-5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v5a1 1 0 0 1-1 1h-2M7 14h10v6H7z"/></symbol><symbol id="r" viewBox="0 0 24 24"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2zM9 8h6M9 12h6"/></symbol><symbol id="w" viewBox="0 0 24 24"><path d="M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2zM4 7l11-3v3M16 14h2"/></symbol><symbol id="b" viewBox="0 0 24 24"><path d="M13 3L5 14h6l-1 7 8-11h-6z"/></symbol><symbol id="h" viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 3-6M4 4v4h4M12 8v4l3 2"/></symbol><symbol id="s" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5"/></symbol><symbol id="k" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol><symbol id="pl" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol></svg><nav id="sb" aria-label="Sezioni"></nav><main id="m"></main>
 <div id="bar" class="bar" hidden></div><div id="sh" hidden></div><input id="fi" type="file" hidden>
 <script>/*!
 
@@ -256,6 +273,9 @@ const TIT={pv:'Preventivi',st:'Storico',sp:'Spese',ca:'Cassa',en:'Energia',mat:'
 const BAR={home:[['mg','Nuovo lavoro','st(0)']],pv:[['mg','Aggiungi pezzo','pz(0,1)'],['dk','Aggiungi prototipazione','pz(0,2)'],['gr','Aggiungi spesa','ex2(0)']],sp:[['mg','Nuova spesa','sp(0)']],st:[['mg','Nuovo lavoro','st(0)']],
   ca:[['mg','Versamento','verScelta()'],['dk','Rimborso','rimb(0)']],en:[['mg','Bolletta','bo(0)'],['dk','Ore','oh(0)']],mat:[['mg','Filamento','fil(0)'],['dk','Stampante','stm(0)']]};
 
+const SBI=[['home','Home'],['pv','Preventivi'],['st','Storico'],['sp','Spese'],['ca','Cassa'],['en','Energia'],['mat','Materiali'],['bil','Bilancio']];
+function sb(){const s=$('#sb');if(!s)return;document.body.classList.toggle('hasSb',!!Z);
+  s.innerHTML=Z?LOGO+SBI.map(x=>'<button class="'+(x[0]===tab?'on':'')+'"'+(x[0]===tab?' aria-current="page"':'')+' onclick="nav(\''+x[0]+'\')">'+x[1]+'</button>').join(''):''}
 function vHome(){const t=tot(),neg=t.p17<0,
   T=(c,i,n,u,k)=>'<button class="'+(k||'')+'" onclick="go(\''+c+'\')">'+IC(i)+'<span><b>'+n+'</b><em>'+u+'</em></span></button>';
   return '<button class="hb0" onclick="go(\'bil\')"><small>Bilancio'+(neg?' · quello che manca':'')+'</small><b'+(neg?' class="neg"':'')+'>'+eur(t.p17)+'</b><span class="hr"><span>Incassi<b>'+eur0(t.P12)+'</b></span><span>Speso<b>'+eur0(t.T)+'</b></span><span>Cassa<b>'+eur0(t.p16)+'</b></span></span></button>'+
@@ -334,11 +354,11 @@ function vMat(){const F=fils(),P=stamps();
 function ric(){const m=$('#m'),bar=$('#bar'),
   top=LOGO+((tab==='home'||!Z)?'<div class="top"><h1>Snitch e Impicci</h1><button id="dt" class="dot" onclick="menu()">Menu</button></div>'
    :'<div class="top"><button class="bk" aria-label="Indietro" onclick="history.back()">'+IC('k')+'</button><h1>'+TIT[tab]+'</h1><button id="dt" class="dot" onclick="menu()"></button></div>');
-  if(!Z){m.innerHTML=top+'<div class="big"><h2>Apri il tuo Excel</h2><p>Tocca “Apri Excel” e scegli il file XLSM. Lo fai una volta sola: poi l’app ricorda tutto e salva da sola ad ogni modifica.</p><button class="mg" onclick="scegli()">Apri Excel</button><button class="gr" onclick="dalModello()">Parti dal modello</button></div>';bar.innerHTML='';bar.hidden=true;return}
+  if(!Z){m.innerHTML=top+'<div class="big"><h2>Apri il tuo Excel</h2><p>Tocca “Apri Excel” e scegli il file XLSM. Lo fai una volta sola: poi l’app ricorda tutto e salva da sola ad ogni modifica.</p><button class="mg" onclick="scegli()">Apri Excel</button><button class="gr" onclick="dalModello()">Parti dal modello</button></div>';bar.innerHTML='';bar.hidden=true;sb();return}
   const f=document.activeElement&&document.activeElement.id==='q',pos=f?document.activeElement.selectionStart:0;
   m.innerHTML=top+{home:vHome,pv:vPv,st:vSt,bil:vBil,sp:vSp,ca:vCa,en:vEn,mat:vMat}[tab]();
   const B=BAR[tab];bar.innerHTML=B?B.map(x=>'<button class="'+x[0]+'" onclick="'+x[2]+'">'+IC('pl')+x[1]+'</button>').join(''):'';bar.hidden=!B;bar.classList.toggle('b3',!!B&&B.length>2);
-  stato();if(f){const i=$('#q');i.focus();i.setSelectionRange(pos,pos)}}
+  sb();stato();if(f){const i=$('#q');i.focus();i.setSelectionRange(pos,pos)}}
 
 function stato(){const e=$('#dt');if(!e)return;let t='Salvato nell’app',c='dot ok';
   if(!Z&&!cu){t='Menu';c='dot'}
@@ -434,6 +454,11 @@ function st(r){const R0=r?storico().find(x=>x.r===r):null,a=prev(...RB[1]),b=pre
    setSto(row,{n:o.n.trim(),d:d2s(o.d),c:o.c.trim(),p:num(o.p)||0,e:phm(o.e),f:num(o.f)||0,g:num(o.g)||0,k:num(o.k)||0,l:num(o.l)})},
   r?()=>clrSto(r):null)}
 function go(t){if(t===tab)return;tab=t;q='';history.pushState({t},'');ric();scrollTo(0,0)}
+function nav(t){if(t===tab)return;
+  if(t==='home'){if(history.state&&history.state.t)history.back();else{tab='home';q='';ric();scrollTo(0,0)}}
+  else if(tab==='home')go(t);
+  else{tab=t;q='';history.replaceState({t},'');ric();scrollTo(0,0)}}
+addEventListener('keydown',e=>{if(e.key==='Escape'){const h=$('#sh');if(h&&!h.hidden&&!h.querySelector('#lg,#k1'))h.hidden=true}});
 addEventListener('popstate',()=>{if(tab!=='home'){tab='home';q='';ric();scrollTo(0,0)}});
 //MAT_START
 const FIL_R=rg(2,22),ST_R=rg(2,4);
