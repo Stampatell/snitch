@@ -253,7 +253,7 @@ const wk=n=>{const d=new Date(Math.round((n-25569)*864e5)),t=new Date(Date.UTC(d
 const accB=(id,t,body,v,n)=>{const o=!!ex[id]||(!!q&&(id==='sp'||id==='st'));return '<div class="pn"><button class="ph" aria-expanded="'+o+'" onclick="tgl(\''+id+'\')"><span>'+t+(n==null?'':' <small>('+n+')</small>')+'</span><b>'+(v?v+' ':'')+(o?'\u2304':'\u203A')+'</b></button>'+(o?'<div class="in">'+body+'</div>':'')+'</div>'};
 const acc=(id,t,L,fn,v)=>accB(id,t,L.map(fn).join(''),v,L.length);
 const TIT={pv:'Preventivi',st:'Storico',sp:'Spese',ca:'Cassa',en:'Energia',mat:'Materiali',bil:'Bilancio'};
-const BAR={home:[['mg','Nuova spesa','sp(0)'],['dk','Nuovo pezzo','pz(0,1)']],pv:[['mg','Aggiungi pezzo','pz(0,1)'],['dk','Aggiungi prototipazione','pz(0,2)'],['gr','Aggiungi spesa','ex2(0)']],sp:[['mg','Nuova spesa','sp(0)']],st:[['mg','Nuovo lavoro','st(0)']],
+const BAR={home:[['mg','Nuovo lavoro','st(0)']],pv:[['mg','Aggiungi pezzo','pz(0,1)'],['dk','Aggiungi prototipazione','pz(0,2)'],['gr','Aggiungi spesa','ex2(0)']],sp:[['mg','Nuova spesa','sp(0)']],st:[['mg','Nuovo lavoro','st(0)']],
   ca:[['mg','Versamento','verScelta()'],['dk','Rimborso','rimb(0)']],en:[['mg','Bolletta','bo(0)'],['dk','Ore','oh(0)']],mat:[['mg','Filamento','fil(0)'],['dk','Stampante','stm(0)']]};
 
 function vHome(){const t=tot(),neg=t.p17<0,
